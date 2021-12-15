@@ -3,8 +3,8 @@ const XMLNS = 'http://www.w3.org/2000/svg';
 class SmartBoard {
 
     public svg: SVGElement;
-    public x?: number;
-    public y?: number;
+    public x: number = 0;
+    public y: number = 0;
     public target: EventTarget;
 
     constructor({ parent }: { parent: HTMLElement }) {
@@ -35,7 +35,8 @@ class SmartBoard {
 
         switch (event.type) {
             case 'mousemove':
-                this.handleMouseMove(event as MouseEvent);
+                this.updateCoords((<MouseEvent>event).offsetX, (<MouseEvent>event).offsetY);
+                this.target.dispatchEvent(new CustomEvent('xy', { detail: event }));
                 break;
             case 'mousedown':
                 this.handleMouseDown(event as MouseEvent);
@@ -45,24 +46,19 @@ class SmartBoard {
         }
     }
 
-    handleMouseMove(event: MouseEvent) {
-        this.x = event.offsetX;
-        this.y = event.offsetY;
+    updateCoords(x: number, y: number) {
+        this.x = x;
+        this.y = y;
     }
 
     handleMouseDown(event: MouseEvent) {
 
         if (!this.x || !this.y) {
 
-            this.x = event.offsetX;
-            this.y = event.offsetY;
+            this.updateCoords((<MouseEvent>event).offsetX, (<MouseEvent>event).offsetY);
         }
 
         let entity = new PathEntity({ smartBoard: this, x: this.x, y: this.y });
-
-        this.target.dispatchEvent(new CustomEvent('xy', {
-            detail: event
-        }));
     }
 }
 
@@ -72,7 +68,6 @@ class PathEntity {
 
     private smartBoard: SmartBoard;
     private path: Array<Array<number>> = [];
-    private entitySelection: EntitySelection;
 
     constructor({ smartBoard, x, y }: { smartBoard: SmartBoard, x: number, y: number }) {
 
@@ -84,24 +79,19 @@ class PathEntity {
 
         this.smartBoard = smartBoard;
 
-        let entitySelection = this.entitySelection = new EntitySelection();
-
-        const xmlns = 'http://www.w3.org/2000/svg';
-
-        smartBoard.target.addEventListener('xy', this.handleXyDraw);
-        smartBoard.target.addEventListener('xy', entitySelection.handleXy);
-
-
-        let element = this.element = document.createElementNS(xmlns, 'path');
+        let element = this.element = document.createElementNS(XMLNS, 'path');
 
         element.setAttributeNS(null, 'stroke', 'black');
         element.setAttributeNS(null, 'fill', 'none');
         element.setAttributeNS(null, 'stroke-width', '2');
-        element.addEventListener('mousedown', this.handleMouseDown, false);
-
-        document.addEventListener('mouseup', this.handleMouseUpDraw, { capture: true, once: true });
 
         this.smartBoard.svg.appendChild(element);
+
+        this.path.push([x, y]);
+
+        smartBoard.target.addEventListener('xy', this.handleXyDraw);
+
+        document.addEventListener('mouseup', this.handleMouseUpDraw, { capture: true, once: true });
     }
 
     dispose() { }
@@ -112,6 +102,7 @@ class PathEntity {
         event.preventDefault();
 
         this.smartBoard.target.addEventListener('xy', this.handleXyMove);
+
         document.addEventListener('mouseup', this.handleMouseUpMove, { capture: true, once: true });
     }
 
@@ -123,6 +114,8 @@ class PathEntity {
     handleMouseUpDraw(event: MouseEvent) {
 
         this.smartBoard.target.removeEventListener('xy', this.handleXyDraw);
+
+        this.element.addEventListener('mousedown', this.handleMouseDown, { capture: true, once: true });
     }
 
     handleXyDraw(event: Event) {
@@ -148,7 +141,6 @@ class PathEntity {
         }
 
         this.render();
-        this.entitySelection.render();
     }
 
     render() {
@@ -166,89 +158,9 @@ class PathEntity {
     }
 }
 
-class EntitySelection {
-
-    private minX: number = Number.MAX_SAFE_INTEGER;
-    private minY: number = Number.MAX_SAFE_INTEGER;
-    private maxX: number = 0;
-    private maxY: number = 0;
-    private element: SVGRectElement;
-
-    constructor() {
-
-        let element = this.element = document.createElementNS(XMLNS, 'rect');
-
-        this.element.setAttributeNS(null, 'stroke', 'black');
-        this.element.setAttributeNS(null, 'stroke-dasharray', '4 1');
-    }
-
-    handleXy(event: Event) {
-
-        let { offsetX: x, offsetY: y } = (event as CustomEvent).detail;
-
-        if (x < this.minX) {
-            this.minX = x;
-        }
-
-        if (y < this.minY) {
-            this.minY = y;
-        }
-
-        if (x > this.maxX) {
-            this.maxX = x;
-        }
-
-        if (y > this.maxY) {
-            this.maxY = y;
-        }
-    }
-
-    render() {
-
-        this.element.setAttributeNS(null, 'x', this.minX.toString());
-        this.element.setAttributeNS(null, 'y', this.minY.toString());
-        this.element.setAttributeNS(null, 'width', (this.maxX - this.minX).toString());
-        this.element.setAttributeNS(null, 'height', (this.maxY - this.minY).toString());
-    }
-}
-
 let wrapper = document.getElementById('wrapper');
 
 if (wrapper) {
 
     let smartBoard = new SmartBoard({ parent: wrapper });
-
-    setInterval(() => {
-
-        let svg = document.querySelector('#wrapper svg');
-
-        let test = document.getElementById('test');
-
-        if (svg && test) {
-
-            [...test.children].forEach((value: Element) => test?.removeChild(value));
-
-            svg = svg.cloneNode(true) as Element;
-
-            svg.setAttributeNS(null, 'width', '200');
-            svg.setAttributeNS(null, 'height', '200');
-            svg.setAttributeNS(null, 'viewBox', '0 0 500 500');
-
-            test.appendChild(svg);
-        }
-
-    }, 1000);
-
-    let target = document.getElementById('target');
-
-    target?.addEventListener('mousedown', (event: Event)=>{
-        console.log(event);
-    });
-
-    let line = document.getElementById('line');
-
-    line?.addEventListener('mousedown', (event: Event)=>{
-        console.log("line");
-    });
 }
-
