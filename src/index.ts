@@ -109,6 +109,8 @@ class PathEntity {
     handleMouseUpMove(event: MouseEvent) {
 
         this.smartBoard.target.removeEventListener('xy', this.handleXyMove);
+
+        this.element.addEventListener('mousedown', this.handleMouseDown, { capture: true, once: true });
     }
 
     handleMouseUpDraw(event: MouseEvent) {
