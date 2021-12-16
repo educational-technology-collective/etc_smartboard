@@ -1,9 +1,11 @@
 {
   "name": "@educational-technology-collective/etc_smartboard",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "./dist/index.js",
-  "files": ["dist/**/*"],
+  "files": [
+    "dist/**/*"
+  ],
   "scripts": {
     "build": "npx tsc",
     "deploy": "cp -Rv ./dist/*.js ./test/etc_smartboard && cp -TRv ./test /var/www/html/etc_smartboard",
