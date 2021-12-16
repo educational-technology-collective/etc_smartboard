@@ -6,7 +6,7 @@
   "files": ["dist/**/*"],
   "scripts": {
     "build": "npx tsc",
-    "deploy": "cp -TRv ./dist ./test/etc_smartboard && cp -TRv ./test /var/www/html/etc_smartboard",
+    "deploy": "cp -Rv ./dist/*.js ./test/etc_smartboard && cp -TRv ./test /var/www/html/etc_smartboard",
     "build:deploy": "npm run build && npm run deploy",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
