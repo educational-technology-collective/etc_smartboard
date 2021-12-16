@@ -1,11 +1,12 @@
 {
-  "name": "etc_smartboard",
+  "name": "@educational-technology-collective/etc_smartboard",
   "version": "1.0.0",
   "description": "",
   "main": "./dist/index.js",
+  "files": [".dist/**/*"],
   "scripts": {
     "build": "npx tsc",
-    "deploy": "cp ./dist/* /var/www/html/etc_smartboard",
+    "deploy": "cp -TRv ./dist ./test/etc_smartboard && cp -TRv ./test /var/www/html/etc_smartboard",
     "build:deploy": "npm run build && npm run deploy",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

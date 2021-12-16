@@ -1,6 +1,6 @@
 const XMLNS = 'http://www.w3.org/2000/svg';
 
-class SmartBoard {
+export class SmartBoard {
 
     public svg: SVGElement;
     public x: number = 0;
@@ -158,11 +158,4 @@ class PathEntity {
 
         this.element.setAttributeNS(null, 'd', d);
     }
-}
-
-let wrapper = document.getElementById('wrapper');
-
-if (wrapper) {
-
-    let smartBoard = new SmartBoard({ parent: wrapper });
 }
