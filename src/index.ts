@@ -59,6 +59,8 @@ export class SmartBoard {
         }
 
         let entity = new PathEntity({ smartBoard: this, x: this.x, y: this.y });
+
+        this.target.dispatchEvent(new CustomEvent('new_entity', { detail: entity }));
     }
 }
 
@@ -67,7 +69,7 @@ class PathEntity {
     public element: SVGPathElement;
 
     private smartBoard: SmartBoard;
-    private path: Array<Array<number>> = [];
+    public path: Array<Array<number>> = [];
 
     constructor({ smartBoard, x, y }: { smartBoard: SmartBoard, x: number, y: number }) {
 
