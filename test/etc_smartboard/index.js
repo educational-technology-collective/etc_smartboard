@@ -38,6 +38,7 @@ export class SmartBoard {
             this.updateCoords(event.offsetX, event.offsetY);
         }
         let entity = new PathEntity({ smartBoard: this, x: this.x, y: this.y });
+        this.target.dispatchEvent(new CustomEvent('new_entity', { detail: entity }));
     }
 }
 class PathEntity {

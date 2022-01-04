@@ -59,8 +59,6 @@ export class SmartBoard {
         }
 
         let entity = new PathEntity({ smartBoard: this, x: this.x, y: this.y });
-
-        this.target.dispatchEvent(new CustomEvent('new_entity', { detail: entity }));
     }
 }
 
@@ -120,6 +118,8 @@ class PathEntity {
         this.smartBoard.target.removeEventListener('xy', this.handleXyDraw);
 
         this.element.addEventListener('mousedown', this.handleMouseDown, { capture: true, once: true });
+
+        this.smartBoard.target.dispatchEvent(new CustomEvent('new_entity', { detail: this }));
     }
 
     handleXyDraw(event: Event) {
