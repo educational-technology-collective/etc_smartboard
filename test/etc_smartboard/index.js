@@ -38,7 +38,6 @@ export class SmartBoard {
             this.updateCoords(event.offsetX, event.offsetY);
         }
         let entity = new PathEntity({ smartBoard: this, x: this.x, y: this.y });
-        this.target.dispatchEvent(new CustomEvent('new_entity', { detail: entity }));
     }
 }
 class PathEntity {
@@ -73,6 +72,7 @@ class PathEntity {
     handleMouseUpDraw(event) {
         this.smartBoard.target.removeEventListener('xy', this.handleXyDraw);
         this.element.addEventListener('mousedown', this.handleMouseDown, { capture: true, once: true });
+        this.smartBoard.target.dispatchEvent(new CustomEvent('new_entity', { detail: this }));
     }
     handleXyDraw(event) {
         event.stopPropagation();
