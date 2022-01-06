@@ -6,6 +6,7 @@ export class SmartBoard {
     public x: number = 0;
     public y: number = 0;
     public target: EventTarget;
+    public entities: Array<PathEntity> = [];
 
     constructor({ parent }: { parent: HTMLElement }) {
 
@@ -59,6 +60,8 @@ export class SmartBoard {
         }
 
         let entity = new PathEntity({ smartBoard: this, x: this.x, y: this.y });
+
+        this.entities.push(entity);
     }
 }
 
