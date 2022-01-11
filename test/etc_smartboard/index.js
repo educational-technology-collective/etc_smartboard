@@ -44,7 +44,7 @@ export class SmartBoard {
 }
 class PathEntity {
     constructor({ smartBoard, x, y }) {
-        this.path = [];
+        this.parts = [];
         this.handleXyDraw = this.handleXyDraw.bind(this);
         this.handleXyMove = this.handleXyMove.bind(this);
         this.handleMouseDown = this.handleMouseDown.bind(this);
@@ -56,7 +56,7 @@ class PathEntity {
         element.setAttributeNS(null, 'fill', 'none');
         element.setAttributeNS(null, 'stroke-width', '2');
         this.smartBoard.svg.appendChild(element);
-        this.path.push([x, y]);
+        this.parts.push({ x, y });
         smartBoard.target.addEventListener('xy', this.handleXyDraw);
         document.addEventListener('mouseup', this.handleMouseUpDraw, { capture: true, once: true });
     }
@@ -71,33 +71,35 @@ class PathEntity {
         this.smartBoard.target.removeEventListener('xy', this.handleXyMove);
         this.element.addEventListener('mousedown', this.handleMouseDown, { capture: true, once: true });
         this.smartBoard.target.dispatchEvent(new CustomEvent('drawing_changed', { detail: this.smartBoard.entities }));
+        console.log(this.smartBoard.entities);
     }
     handleMouseUpDraw(event) {
         this.smartBoard.target.removeEventListener('xy', this.handleXyDraw);
         this.element.addEventListener('mousedown', this.handleMouseDown, { capture: true, once: true });
         this.smartBoard.target.dispatchEvent(new CustomEvent('drawing_changed', { detail: this.smartBoard.entities }));
+        console.log(this.smartBoard.entities);
     }
     handleXyDraw(event) {
         event.stopPropagation();
         event.preventDefault();
         let { offsetX: x, offsetY: y } = event.detail;
-        this.path.push([x, y]);
+        this.parts.push({ x, y });
         this.render();
     }
     handleXyMove(event) {
         let { movementX: x, movementY: y } = event.detail;
-        for (let i = 0; i < this.path.length; i++) {
-            this.path[i][0] = this.path[i][0] + x;
-            this.path[i][1] = this.path[i][1] + y;
+        for (let i = 0; i < this.parts.length; i++) {
+            this.parts[i]['x'] = this.parts[i]['x'] + x;
+            this.parts[i]['y'] = this.parts[i]['y'] + y;
         }
         this.render();
     }
     render() {
         let lineTo = '';
-        for (let i = 1; i < this.path.length; i++) {
-            lineTo = lineTo + ` L ${this.path[i][0]} ${this.path[i][1]}`;
+        for (let i = 1; i < this.parts.length; i++) {
+            lineTo = lineTo + ` L ${this.parts[i]['x']} ${this.parts[i]['y']}`;
         }
-        let d = `M ${this.path[0][0]} ${this.path[0][1]}` + lineTo;
+        let d = `M ${this.parts[0]['x']} ${this.parts[0]['y']}` + lineTo;
         this.element.setAttributeNS(null, 'd', d);
     }
 }

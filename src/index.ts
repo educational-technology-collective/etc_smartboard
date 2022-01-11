@@ -65,12 +65,17 @@ export class SmartBoard {
     }
 }
 
+interface Part {
+    x: number;
+    y: number;
+}
+
 class PathEntity {
 
     public element: SVGPathElement;
 
     private smartBoard: SmartBoard;
-    public path: Array<Array<number>> = [];
+    public parts: Array<Part> = [];
 
     constructor({ smartBoard, x, y }: { smartBoard: SmartBoard, x: number, y: number }) {
 
@@ -90,7 +95,7 @@ class PathEntity {
 
         this.smartBoard.svg.appendChild(element);
 
-        this.path.push([x, y]);
+        this.parts.push({x, y});
 
         smartBoard.target.addEventListener('xy', this.handleXyDraw);
 
@@ -116,6 +121,9 @@ class PathEntity {
         this.element.addEventListener('mousedown', this.handleMouseDown, { capture: true, once: true });
 
         this.smartBoard.target.dispatchEvent(new CustomEvent('drawing_changed', { detail: this.smartBoard.entities }));
+
+        console.log(this.smartBoard.entities);
+
     }
 
     handleMouseUpDraw(event: MouseEvent) {
@@ -125,6 +133,8 @@ class PathEntity {
         this.element.addEventListener('mousedown', this.handleMouseDown, { capture: true, once: true });
 
         this.smartBoard.target.dispatchEvent(new CustomEvent('drawing_changed', { detail: this.smartBoard.entities }));
+
+        console.log(this.smartBoard.entities);
     }
 
     handleXyDraw(event: Event) {
@@ -134,7 +144,7 @@ class PathEntity {
 
         let { offsetX: x, offsetY: y } = (event as CustomEvent).detail;
 
-        this.path.push([x, y]);
+        this.parts.push({x, y});
 
         this.render();
     }
@@ -143,10 +153,10 @@ class PathEntity {
 
         let { movementX: x, movementY: y } = (event as CustomEvent).detail;
 
-        for (let i = 0; i < this.path.length; i++) {
+        for (let i = 0; i < this.parts.length; i++) {
 
-            this.path[i][0] = this.path[i][0] + x;
-            this.path[i][1] = this.path[i][1] + y;
+            this.parts[i]['x'] = this.parts[i]['x'] + x;
+            this.parts[i]['y'] = this.parts[i]['y'] + y;
         }
 
         this.render();
@@ -156,12 +166,12 @@ class PathEntity {
 
         let lineTo = '';
 
-        for (let i = 1; i < this.path.length; i++) {
+        for (let i = 1; i < this.parts.length; i++) {
 
-            lineTo = lineTo + ` L ${this.path[i][0]} ${this.path[i][1]}`
+            lineTo = lineTo + ` L ${this.parts[i]['x']} ${this.parts[i]['y']}`
         }
 
-        let d = `M ${this.path[0][0]} ${this.path[0][1]}` + lineTo;
+        let d = `M ${this.parts[0]['x']} ${this.parts[0]['y']}` + lineTo;
 
         this.element.setAttributeNS(null, 'd', d);
     }
