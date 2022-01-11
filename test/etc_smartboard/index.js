@@ -3,6 +3,7 @@ export class SmartBoard {
     constructor({ parent }) {
         this.x = 0;
         this.y = 0;
+        this.entities = [];
         this.target = new EventTarget();
         const svg = document.createElementNS(XMLNS, 'svg');
         svg.setAttributeNS(null, 'width', '100%');
@@ -38,6 +39,7 @@ export class SmartBoard {
             this.updateCoords(event.offsetX, event.offsetY);
         }
         let entity = new PathEntity({ smartBoard: this, x: this.x, y: this.y });
+        this.entities.push(entity);
     }
 }
 class PathEntity {
@@ -72,7 +74,7 @@ class PathEntity {
     handleMouseUpDraw(event) {
         this.smartBoard.target.removeEventListener('xy', this.handleXyDraw);
         this.element.addEventListener('mousedown', this.handleMouseDown, { capture: true, once: true });
-        this.smartBoard.target.dispatchEvent(new CustomEvent('new_entity', { detail: this }));
+        this.smartBoard.target.dispatchEvent(new CustomEvent('drawing_changed', { detail: this.smartBoard.entities }));
     }
     handleXyDraw(event) {
         event.stopPropagation();
